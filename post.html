@@ -37,7 +37,7 @@
     <!--================END OF NAV===============-->
      <section class="singlepost">
        <div class="container singlepost__container">
-          <h2>Penguin Paradise: Discovering the Wonders of Antarctica</h2>
+          <h2>Data engineering at Meta: High-Level Overview of the internal tech stack</h2>
           <div class="post__author">
             <div class="post__author-avatar">
                 <img src="./images/avatar2.jpg" >
@@ -51,21 +51,19 @@
            <img src="./images/blog33.jpg">
         </div>
         <p>
-            Antarctica, the coldest and driest continent on Earth, is a place of extremes. It's a land of icy beauty and a seemingly inhospitable environment. Yet, amidst the frozen landscapes and chilling winds, there exists a remarkable group of creatures that have adapted to thrive in this harsh realm: penguins.
-
+            What we call the data warehouse is Meta’s main data repository that is used for analytics. It is distinct from the live “graph database” (TAO) which is used for serving content to users in real time. It is a collection of millions of Hive tables, physically stored using an internal fork of ORC (which you can read more about here). Our exabyte-scale data warehouse (one exabyte is 1,000,000 terabytes) is so large that it cannot physically be stored in one single datacenter. Instead, data is spread across different geographical locations.
         </p>
-        <p>
-            Antarctica, the coldest and driest continent on Earth, is a place of extremes. It's a land of icy beauty and a seemingly inhospitable environment. Yet, amidst the frozen landscapes and chilling winds, there exists a remarkable group of creatures that have adapted to thrive in this harsh realm: penguins.
+        <p>    Since the warehouse is not physically located in one     single region, it is split into “namespaces”. Namespaces correspond to both a physical (geographical) and logical partitioning of the warehouse: tables that correspond to a similar “theme” are grouped together in the same namespace, so that they can be used in the same queries efficiently, without having to transfer data across locations. </p>
 
-        </p>
-        <p>
-            Antarctica, the coldest and driest continent on Earth, is a place of extremes. It's a land of icy beauty and a seemingly inhospitable environment. Yet, amidst the frozen landscapes and chilling winds, there exists a remarkable group of creatures that have adapted to thrive in this harsh realm: penguins.
+<p>If there’s the need to use tables from two different namespaces in a query (eg: table1 in namespace A and table2 in namespace B), then we need to replicate data: either we can choose replicate table2 to namespace A, or we replicate table1 to namespace B. We can then run our query in the namespace where both tables exist. Data engineers can create these cross-namespace replicas in a few minutes through a web-based tool, and they will automatically be kept in sync.</p>
 
-        </p>
-        <p>
-            Antarctica, the coldest and driest continent on Earth, is a place of extremes. It's a land of icy beauty and a seemingly inhospitable environment. Yet, amidst the frozen landscapes and chilling winds, there exists a remarkable group of creatures that have adapted to thrive in this harsh realm: penguins.
+<p>While namespaces partition the entire warehouse, tables are also themselves partitioned. Almost all tables in the warehouse have a ds partition column (ds for datestamp in YYYY-MM-DD format), which is generally the date at which the data was generated. Tables can also have additional partition columns to improve efficiency, and each individual partition is stored in a separate file for fast indexing.</p>
 
-        </p>
+<p>Data is only retained in Meta’s systems for the period of time needed to fulfill the purpose for which the data was collected. Tables in the warehouse almost always have finite retention, which means that partitions older than the table’s retention time (e.g. 90 days) will automatically either be archived (anonymized and moved to a cold storage service) or deleted.</p>
+
+<p>All tables are associated with an oncall group, which defines which team owns this data, and who users should refer to if they encounter an issue or have a question on the data in that table.</p>
+        
+       
        </div>
      </section>
     
